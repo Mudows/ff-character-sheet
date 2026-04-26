@@ -1,0 +1,491 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#8b6914;--pl:#fdf6e3;--pb:#c8a96e;--pd:#5c3a00;--dbg:#fff0f0;--dc:#A32D2D;--sbg:#f0fff4;--sc:#3B6D11}
+body{font-family:var(--font-serif,Georgia,serif);font-size:14px;background:transparent}
+.app{max-width:420px;margin:0 auto;padding:10px}
+.hdr{text-align:center;padding:12px 8px 8px;border:2px solid var(--p);border-radius:8px;background:var(--pl);margin-bottom:10px}
+.hdr h1{font-size:19px;font-weight:700;color:var(--pd);letter-spacing:1px}
+.hdr small{font-size:11px;color:var(--p);display:block;margin-top:2px}
+.nav{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.nb{padding:8px 4px;border:1.5px solid var(--p);border-radius:6px;background:var(--pl);color:var(--pd);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center}
+.nb.active{background:var(--p);color:var(--pl)}
+.tab{display:none}.tab.active{display:block}
+.card{border:1.5px solid var(--pb);border-radius:8px;background:var(--pl);margin-bottom:10px;overflow:hidden}
+.ct{background:var(--p);color:var(--pl);font-size:11px;font-weight:700;padding:5px 10px;letter-spacing:1px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.cb{padding:10px}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stat{border:1px solid var(--pb);border-radius:6px;padding:6px 4px;background:#fffdf5;text-align:center}
+.slbl{font-size:10px;color:var(--p);font-weight:700;text-transform:uppercase;margin-bottom:4px}
+.spair{display:flex;gap:3px;justify-content:center;align-items:center}
+.spair input{width:40px;height:34px;border:1px solid var(--pb);border-radius:4px;background:#fff;text-align:center;font-size:15px;font-weight:700;color:var(--pd);font-family:inherit;-moz-appearance:textfield;appearance:textfield}
+.spair input::-webkit-outer-spin-button,.spair input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.spair span{font-size:11px;color:var(--pb)}
+.shint{font-size:8px;color:var(--pb);margin-top:3px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lbl{font-size:10px;color:var(--p);font-weight:700;display:block;margin-bottom:3px;text-transform:uppercase}
+input[type=number],input[type=text]{border:1px solid var(--pb);border-radius:4px;background:#fffdf5;color:var(--pd);font-family:inherit;font-size:13px;padding:5px 7px;width:100%;-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+textarea{border:1px solid var(--pb);border-radius:4px;background:#fffdf5;color:var(--pd);font-family:inherit;font-size:12px;padding:6px;width:100%;resize:none}
+.btn{display:block;width:100%;padding:9px;border:1.5px solid var(--p);border-radius:6px;background:var(--pl);color:var(--pd);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;margin-bottom:6px}
+.btn.primary{background:var(--p);color:var(--pl);border-color:var(--p)}
+.btn.danger{background:var(--dbg);border-color:var(--dc);color:var(--dc)}
+.btn.success{background:var(--sbg);border-color:var(--sc);color:var(--sc)}
+.btn:active{opacity:.85}
+.type-toggle{display:flex;gap:8px;padding:8px 10px}
+.tbtn{flex:1;padding:7px;border:1.5px solid var(--p);border-radius:6px;background:#fffdf5;color:var(--pd);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.tbtn.active{background:var(--p);color:var(--pl)}
+.tbtn:disabled{opacity:.5;cursor:not-allowed}
+.save-row{display:flex;gap:6px;margin-top:4px}
+.save-row .btn{margin-bottom:0;flex:1;font-size:11px;padding:7px}
+.cpanel{background:var(--pl);border:2px solid var(--p);border-radius:8px;padding:12px;margin-bottom:10px}
+.cpanel h3{font-size:14px;color:var(--pd);font-weight:700;margin-bottom:10px;text-align:center;border-bottom:1px dashed var(--pb);padding-bottom:6px}
+.combatants{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.cmb{border:1px solid var(--pb);border-radius:6px;padding:8px;background:#fff;text-align:center}
+.cmb .cn{font-size:10px;font-weight:700;color:var(--p);margin-bottom:4px;text-transform:uppercase}
+.cmb .cv{font-size:26px;font-weight:700;color:var(--pd);line-height:1}
+.cmb .cs{font-size:9px;color:var(--pb);margin-top:2px}
+.cmb.dead .cv{color:var(--dc)}
+.logbox{border:1px solid var(--pb);border-radius:4px;background:#fff;max-height:200px;overflow-y:auto;padding:6px;margin-bottom:8px;font-size:11px;line-height:1.7}
+.le{padding:1px 0;border-bottom:1px solid #f0e8d0}.le:last-child{border:none}
+.le.hero{color:var(--sc)}.le.mon{color:var(--dc)}.le.sys{color:var(--p);font-style:italic}
+.rrow{display:flex;gap:6px;margin-bottom:6px}
+.rrow .btn{margin-bottom:0;flex:1;font-size:12px;padding:7px}
+.luck-info{font-size:10px;color:var(--p);background:#fff;border:1px dashed var(--pb);border-radius:4px;padding:6px;margin-bottom:6px;line-height:1.6}
+.mbox-grid{display:flex;flex-direction:column;gap:8px}
+.mbox{border:1.5px solid var(--pb);border-radius:8px;background:#fffdf5;overflow:hidden}
+.mbox-hdr{padding:8px 10px;cursor:pointer}
+.mbox-name{font-size:13px;font-weight:700;color:var(--pd)}
+.mbox-meta{font-size:10px;color:var(--pb);margin-top:2px}
+.mbox-status{font-size:11px;font-weight:700;margin-top:4px;padding:2px 8px;border-radius:4px;display:inline-block}
+.mbox-status.win{background:var(--sbg);color:var(--sc)}
+.mbox-status.loss{background:var(--dbg);color:var(--dc)}
+.mbox-status.fuga{background:#fffde0;color:#854F0B}
+.mbox-log{display:none;border-top:1px dashed var(--pb);padding:8px;font-size:11px;line-height:1.7;max-height:160px;overflow-y:auto}
+.mbox-log.open{display:block}
+.map-ta{font-family:var(--font-mono,monospace);font-size:12px;line-height:1.5}
+</style>
+
+<div class="app">
+  <div class="hdr">
+    <small>★ AS MONTANHAS SHAMUTANTI ★</small>
+    <h1>Ficha de Aventura</h1>
+    <small id="hdr-sub">Guerreiro</small>
+  </div>
+  <div class="nav">
+    <button class="nb active" onclick="showTab('personagem')">Personagem</button>
+    <button class="nb" onclick="showTab('anotacoes')">Anotações</button>
+    <button class="nb" onclick="showTab('combate')">Combate</button>
+  </div>
+
+  <div id="tab-personagem" class="tab active">
+
+    <div class="card" id="type-card">
+      <div class="ct">Tipo de personagem</div>
+      <div class="type-toggle">
+        <button class="tbtn active" id="btn-g" onclick="setType('guerreiro')">Guerreiro</button>
+        <button class="tbtn" id="btn-m" onclick="setType('mago')">Mago</button>
+      </div>
+      <div id="type-note" style="padding:0 10px 10px;font-size:10px;color:var(--pb)">Será removido após confirmar os atributos.</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">
+        Atributos
+        <span>
+          <button id="btn-roll" onclick="rollAll()" style="background:#fffdf5;border:1px solid var(--pb);border-radius:4px;color:var(--pd);font-size:10px;padding:2px 8px;cursor:pointer;font-family:inherit">Rolar dados</button>
+          <button id="btn-confirm" onclick="confirmAttrs()" style="display:none;background:var(--p);border:1px solid var(--p);border-radius:4px;color:var(--pl);font-size:10px;padding:2px 8px;cursor:pointer;font-family:inherit;margin-left:4px">Confirmar</button>
+        </span>
+      </div>
+      <div class="cb">
+        <div class="stats3">
+          <div class="stat">
+            <div class="slbl">Habilidade</div>
+            <div class="spair">
+              <input type="number" id="hab-i" placeholder="ini" oninput="saveData()">
+              <span>/</span>
+              <input type="number" id="hab-a" placeholder="atu" oninput="saveData()">
+            </div>
+            <div class="shint">ini / atual</div>
+          </div>
+          <div class="stat">
+            <div class="slbl">Energia</div>
+            <div class="spair">
+              <input type="number" id="ene-i" placeholder="ini" oninput="saveData()">
+              <span>/</span>
+              <input type="number" id="ene-a" placeholder="atu" oninput="saveData()">
+            </div>
+            <div class="shint">ini / atual</div>
+          </div>
+          <div class="stat">
+            <div class="slbl">Sorte</div>
+            <div class="spair">
+              <input type="number" id="sor-i" placeholder="ini" oninput="saveData()">
+              <span>/</span>
+              <input type="number" id="sor-a" placeholder="atu" oninput="saveData()">
+            </div>
+            <div class="shint">ini / atual</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Ouro e Provisões</div>
+      <div class="cb">
+        <div class="two-col">
+          <div><label class="lbl">Ouro (peças)</label><input type="number" id="ouro" value="20" oninput="saveData()"></div>
+          <div><label class="lbl">Provisões</label><input type="number" id="provisoes" value="2" oninput="saveData()"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Equipamentos e Artefatos</div>
+      <div class="cb"><textarea id="equip" rows="4" placeholder="Espada, mochila, artefatos..." oninput="saveData()"></textarea></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Bônus, Penalidades e Maldições</div>
+      <div class="cb"><textarea id="bonus" rows="3" placeholder="Maldições, bônus, doenças..." oninput="saveData()"></textarea></div>
+    </div>
+
+    <div class="save-row">
+      <button class="btn" onclick="exportJSON()">Exportar JSON</button>
+      <label class="btn" style="cursor:pointer;text-align:center">Importar JSON<input type="file" accept=".json" style="display:none" onchange="importJSON(event)"></label>
+    </div>
+  </div>
+
+  <div id="tab-anotacoes" class="tab">
+    <div class="card">
+      <div class="ct">Pistas e Notas</div>
+      <div class="cb"><textarea id="notas" rows="7" placeholder="Pistas, NPCs, decisões..." oninput="saveData()"></textarea></div>
+    </div>
+    <div class="card">
+      <div class="ct">Mapa da Aventura</div>
+      <div class="cb">
+        <div style="font-size:10px;color:var(--p);margin-bottom:5px">Texto livre ou ASCII para registrar parágrafos e caminhos</div>
+        <textarea id="mapa" rows="10" class="map-ta" placeholder="1 -> 4 -> 17&#10;   [Portão Norte]&#10;17 -> 23 (combate: Goblin)&#10;23 -> 45 ou 89..." oninput="saveData()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-combate" class="tab">
+    <div id="view-idle">
+      <button class="btn primary" onclick="gotoSetup()">Iniciar novo combate</button>
+      <div class="card">
+        <div class="ct">Caixas de Encontros com Monstros</div>
+        <div class="cb"><div class="mbox-grid" id="mbox-grid"><div style="font-size:12px;color:var(--pb);text-align:center;padding:10px 0">Nenhum combate registrado ainda.</div></div></div>
+      </div>
+    </div>
+
+    <div id="view-setup" style="display:none">
+      <div class="cpanel">
+        <h3>Novo Combate</h3>
+        <label class="lbl" style="margin-bottom:4px">Nome do monstro</label>
+        <input type="text" id="c-name" placeholder="Ex: Goblin das Montanhas" style="margin-bottom:8px">
+        <div class="two-col" style="margin-bottom:10px">
+          <div><label class="lbl">Habilidade</label><input type="number" id="c-hab" placeholder="7"></div>
+          <div><label class="lbl">Energia</label><input type="number" id="c-ene" placeholder="6"></div>
+        </div>
+        <button class="btn primary" onclick="startCombat(true)">Combate automático</button>
+        <button class="btn" onclick="startCombat(false)">Combate manual</button>
+        <button class="btn danger" onclick="gotoIdle()">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="view-active" style="display:none">
+      <div class="cpanel">
+        <h3 id="ct-title">Combate</h3>
+        <div class="combatants">
+          <div class="cmb" id="ct-hero"><div class="cn">Herói</div><div class="cv" id="ct-hval">—</div><div class="cs">Energia</div></div>
+          <div class="cmb" id="ct-mon"><div class="cn" id="ct-mname">Monstro</div><div class="cv" id="ct-mval">—</div><div class="cs">Energia</div></div>
+        </div>
+        <div class="logbox" id="ct-log"></div>
+        <div id="auto-ctrl">
+          <div class="rrow">
+            <button class="btn primary" onclick="doRound()">Rolar rodada</button>
+          </div>
+          <div id="luck-zone" style="display:none">
+            <div class="luck-info" id="luck-desc"></div>
+            <div class="rrow">
+              <button class="btn success" onclick="applyLuck(true)">Testar Sorte</button>
+              <button class="btn" onclick="applyLuck(false)">Pular Sorte</button>
+            </div>
+          </div>
+          <button class="btn danger" onclick="endCombat('fuga')">Fugir / Encerrar</button>
+        </div>
+        <div id="manual-ctrl" style="display:none">
+          <div style="font-size:11px;color:var(--p);margin-bottom:6px">Dano nesta rodada:</div>
+          <div class="two-col" style="margin-bottom:8px">
+            <div><label class="lbl">Dano no herói</label><input type="number" id="m-hdmg" value="0"></div>
+            <div><label class="lbl">Dano no monstro</label><input type="number" id="m-mdmg" value="0"></div>
+          </div>
+          <button class="btn primary" onclick="doManualRound()">Aplicar rodada</button>
+          <button class="btn danger" onclick="endCombat('fuga')">Encerrar combate</button>
+        </div>
+        <div id="end-ctrl" style="display:none">
+          <button class="btn success" onclick="finalizeCombat()">Registrar e encerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var S={type:'guerreiro',locked:false,habI:'',habA:'',eneI:'',eneA:'',sorI:'',sorA:'',ouro:20,provisoes:2,equip:'',bonus:'',notas:'',mapa:'',history:[]};
+var C={};
+
+function d6(){return Math.floor(Math.random()*6)+1}
+function roll2(){return d6()+d6()}
+
+function showTab(t){
+  document.querySelectorAll('.tab').forEach(function(el){el.classList.remove('active')});
+  document.querySelectorAll('.nb').forEach(function(el){el.classList.remove('active')});
+  document.getElementById('tab-'+t).classList.add('active');
+  document.querySelectorAll('.nb')[{personagem:0,anotacoes:1,combate:2}[t]].classList.add('active');
+}
+
+function setType(t){
+  if(S.locked)return;
+  S.type=t;
+  document.getElementById('btn-g').classList.toggle('active',t==='guerreiro');
+  document.getElementById('btn-m').classList.toggle('active',t==='mago');
+  document.getElementById('hdr-sub').textContent=t==='guerreiro'?'Guerreiro':'Mago';
+  saveData();
+}
+
+function lockAndHideType(){
+  S.locked=true;
+  document.getElementById('type-card').style.display='none';
+  saveData();
+}
+
+function rollAll(){
+  var m=S.type==='mago';
+  var h=d6()+(m?4:6),e=d6()+d6()+12,s=d6()+6;
+  sf('hab-i',h);sf('hab-a',h);sf('ene-i',e);sf('ene-a',e);sf('sor-i',s);sf('sor-a',s);
+  S.habI=h;S.habA=h;S.eneI=e;S.eneA=e;S.sorI=s;S.sorA=s;
+  document.getElementById('btn-roll').style.display='none';
+  document.getElementById('btn-confirm').style.display='inline-block';
+  saveData();
+}
+
+function confirmAttrs(){
+  lockAndHideType();
+  document.getElementById('btn-confirm').style.display='none';
+  saveData();
+}
+
+function sf(id,v){document.getElementById(id).value=v}
+function gf(id){return document.getElementById(id).value}
+
+function readFields(){
+  S.habI=gf('hab-i');S.habA=gf('hab-a');
+  S.eneI=gf('ene-i');S.eneA=gf('ene-a');
+  S.sorI=gf('sor-i');S.sorA=gf('sor-a');
+  S.ouro=gf('ouro');S.provisoes=gf('provisoes');
+  S.equip=gf('equip');S.bonus=gf('bonus');
+  S.notas=gf('notas');S.mapa=gf('mapa');
+}
+
+function saveData(){
+  readFields();
+  try{localStorage.setItem('shamutanti_v5',JSON.stringify(S))}catch(e){}
+}
+
+function loadState(d){
+  S=d;
+  sf('hab-i',S.habI||'');sf('hab-a',S.habA||'');
+  sf('ene-i',S.eneI||'');sf('ene-a',S.eneA||'');
+  sf('sor-i',S.sorI||'');sf('sor-a',S.sorA||'');
+  sf('ouro',S.ouro||20);sf('provisoes',S.provisoes||2);
+  document.getElementById('equip').value=S.equip||'';
+  document.getElementById('bonus').value=S.bonus||'';
+  document.getElementById('notas').value=S.notas||'';
+  document.getElementById('mapa').value=S.mapa||'';
+  document.getElementById('btn-g').classList.toggle('active',S.type==='guerreiro');
+  document.getElementById('btn-m').classList.toggle('active',S.type==='mago');
+  document.getElementById('hdr-sub').textContent=S.type==='guerreiro'?'Guerreiro':'Mago';
+  if(S.locked){
+    document.getElementById('type-card').style.display='none';
+    document.getElementById('btn-roll').style.display='none';
+    document.getElementById('btn-confirm').style.display='none';
+  }
+  renderMboxGrid();
+}
+
+function exportJSON(){
+  readFields();
+  var b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='shamutanti.json';a.click();
+}
+
+function importJSON(e){
+  var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    try{var p=JSON.parse(ev.target.result);if(!p.type)return alert('JSON inválido.');loadState(p);saveData();}
+    catch(err){alert('Erro ao importar.');}
+  };
+  r.readAsText(f);
+}
+
+function gotoIdle(){
+  document.getElementById('view-idle').style.display='block';
+  document.getElementById('view-setup').style.display='none';
+  document.getElementById('view-active').style.display='none';
+}
+
+function gotoSetup(){
+  sf('c-name','');sf('c-hab','');sf('c-ene','');
+  document.getElementById('view-idle').style.display='none';
+  document.getElementById('view-setup').style.display='block';
+  document.getElementById('view-active').style.display='none';
+}
+
+function startCombat(auto){
+  var name=gf('c-name').trim()||'Monstro';
+  var hab=parseInt(gf('c-hab'))||7;
+  var ene=parseInt(gf('c-ene'))||6;
+  var heroEne=parseInt(gf('ene-a'))||20;
+  C={name:name,hab:hab,eneI:ene,eneCur:ene,heroEneCur:heroEne,round:0,log:[],auto:auto,finished:false,pendingLuck:null};
+  document.getElementById('ct-title').textContent='Herói vs '+name;
+  document.getElementById('ct-mname').textContent=name;
+  document.getElementById('auto-ctrl').style.display=auto?'block':'none';
+  document.getElementById('manual-ctrl').style.display=auto?'none':'block';
+  document.getElementById('end-ctrl').style.display='none';
+  document.getElementById('luck-zone').style.display='none';
+  document.getElementById('ct-log').innerHTML='';
+  document.getElementById('view-idle').style.display='none';
+  document.getElementById('view-setup').style.display='none';
+  document.getElementById('view-active').style.display='block';
+  updateDisplay();
+  addLog('sys','Combate iniciado! Herói (ENE:'+heroEne+') vs '+name+' (HAB:'+hab+' ENE:'+ene+')');
+}
+
+function updateDisplay(){
+  document.getElementById('ct-hval').textContent=C.heroEneCur;
+  document.getElementById('ct-mval').textContent=C.eneCur;
+  document.getElementById('ct-hero').classList.toggle('dead',C.heroEneCur<=0);
+  document.getElementById('ct-mon').classList.toggle('dead',C.eneCur<=0);
+}
+
+function addLog(type,msg){
+  C.log.push({type:type,msg:msg});
+  var b=document.getElementById('ct-log');
+  var d=document.createElement('div');d.className='le '+type;d.textContent=msg;
+  b.appendChild(d);b.scrollTop=b.scrollHeight;
+}
+
+function doRound(){
+  if(C.finished||C.pendingLuck)return;
+  C.round++;
+  var heroHab=parseInt(gf('hab-a'))||10;
+  var ha=roll2()+heroHab,ma=roll2()+C.hab;
+  addLog('sys','Rodada '+C.round+' — Herói '+ha+' vs '+C.name+' '+ma);
+  if(ha>ma){
+    C.pendingLuck={winner:'hero'};
+    addLog('hero','Herói vence a rodada! Dano base: 2. Testar Sorte para causar 4?');
+    document.getElementById('luck-desc').textContent='Herói venceu: Testar Sorte para causar 4 de dano (em vez de 2). Sorte atual: '+(gf('sor-a')||'?');
+    document.getElementById('luck-zone').style.display='block';
+  } else if(ma>ha){
+    C.pendingLuck={winner:'monster'};
+    addLog('mon',C.name+' vence a rodada! Dano base: 2. Testar Sorte para reduzir para 1?');
+    document.getElementById('luck-desc').textContent=C.name+' venceu: Testar Sorte para receber apenas 1 de dano (em vez de 2). Sorte atual: '+(gf('sor-a')||'?');
+    document.getElementById('luck-zone').style.display='block';
+  } else {
+    addLog('sys','Empate! Nenhum dano nesta rodada.');
+  }
+  updateDisplay();
+}
+
+function applyLuck(test){
+  if(!C.pendingLuck||C.finished)return;
+  var pl=C.pendingLuck;
+  C.pendingLuck=null;
+  document.getElementById('luck-zone').style.display='none';
+  if(test){
+    var sorA=parseInt(gf('sor-a'))||8;
+    var r=roll2(),lucky=r<=sorA;
+    var newSor=Math.max(1,sorA-1);
+    sf('sor-a',newSor);S.sorA=newSor;saveData();
+    if(pl.winner==='hero'){
+      var dmg=lucky?4:2;
+      C.eneCur=Math.max(0,C.eneCur-dmg);
+      addLog(lucky?'hero':'mon','Sorte ('+r+'/'+sorA+'): '+(lucky?'SORTUDO! 4 de dano ao '+C.name+'.':'AZARADO! Apenas 2 de dano.')+' '+C.name+' ENE: '+C.eneCur);
+    } else {
+      var dmg=lucky?1:2;
+      C.heroEneCur=Math.max(0,C.heroEneCur-dmg);
+      sf('ene-a',C.heroEneCur);S.eneA=C.heroEneCur;saveData();
+      addLog(lucky?'hero':'mon','Sorte ('+r+'/'+sorA+'): '+(lucky?'SORTUDO! Apenas 1 de dano recebido.':'AZARADO! 2 de dano recebido.')+' Herói ENE: '+C.heroEneCur);
+    }
+  } else {
+    if(pl.winner==='hero'){
+      C.eneCur=Math.max(0,C.eneCur-2);
+      addLog('hero','Dano aplicado: 2. '+C.name+' ENE: '+C.eneCur);
+    } else {
+      C.heroEneCur=Math.max(0,C.heroEneCur-2);
+      sf('ene-a',C.heroEneCur);S.eneA=C.heroEneCur;saveData();
+      addLog('mon','Dano recebido: 2. Herói ENE: '+C.heroEneCur);
+    }
+  }
+  updateDisplay();
+  checkEnd();
+}
+
+function checkEnd(){
+  if(C.eneCur<=0)endCombat('vitoria');
+  else if(C.heroEneCur<=0)endCombat('derrota');
+}
+
+function endCombat(result){
+  if(C.finished)return;
+  C.finished=true;C.result=result;
+  var msgs={vitoria:'Vitória! '+C.name+' derrotado!',derrota:'Derrota. O herói caiu.',fuga:'Combate encerrado.'};
+  var types={vitoria:'hero',derrota:'mon',fuga:'sys'};
+  addLog(types[result]||'sys',msgs[result]);
+  document.getElementById('auto-ctrl').style.display='none';
+  document.getElementById('manual-ctrl').style.display='none';
+  document.getElementById('luck-zone').style.display='none';
+  document.getElementById('end-ctrl').style.display='block';
+}
+
+function doManualRound(){
+  if(C.finished)return;
+  C.round++;
+  var hd=parseInt(gf('m-hdmg'))||0,md=parseInt(gf('m-mdmg'))||0;
+  C.heroEneCur=Math.max(0,C.heroEneCur-hd);
+  C.eneCur=Math.max(0,C.eneCur-md);
+  sf('ene-a',C.heroEneCur);S.eneA=C.heroEneCur;saveData();
+  addLog('sys','Rodada '+C.round+': Herói -'+hd+' | '+C.name+' -'+md+' ENE');
+  sf('m-hdmg',0);sf('m-mdmg',0);
+  updateDisplay();checkEnd();
+}
+
+function finalizeCombat(){
+  var entry={id:Date.now(),name:C.name,hab:C.hab,eneI:C.eneI,rounds:C.round,result:C.result,log:C.log.slice(),date:new Date().toLocaleString('pt-BR')};
+  if(!S.history)S.history=[];
+  S.history.unshift(entry);
+  saveData();renderMboxGrid();gotoIdle();
+}
+
+function renderMboxGrid(){
+  var el=document.getElementById('mbox-grid');
+  if(!S.history||!S.history.length){el.innerHTML='<div style="font-size:12px;color:var(--pb);text-align:center;padding:10px 0">Nenhum combate registrado ainda.</div>';return;}
+  el.innerHTML='';
+  S.history.forEach(function(h,i){
+    var lbs={vitoria:'Vitória',derrota:'Derrota',fuga:'Encerrado'};
+    var cls={vitoria:'win',derrota:'loss',fuga:'fuga'};
+    var box=document.createElement('div');box.className='mbox';
+    box.innerHTML='<div class="mbox-hdr"><div class="mbox-name">'+h.name+'</div>'
+      +'<div class="mbox-meta">HAB '+h.hab+' &nbsp;|&nbsp; ENE inicial '+h.eneI+' &nbsp;|&nbsp; '+h.rounds+' rodadas &nbsp;|&nbsp; '+h.date+'</div>'
+      +'<span class="mbox-status '+(cls[h.result]||'')+'">'+(lbs[h.result]||h.result)+'</span></div>'
+      +'<div class="mbox-log" id="mbl-'+i+'">'+h.log.map(function(l){return'<div class="le '+l.type+'">'+l.msg+'</div>'}).join('')+'</div>';
+    box.querySelector('.mbox-hdr').addEventListener('click',function(){document.getElementById('mbl-'+i).classList.toggle('open')});
+    el.appendChild(box);
+  });
+}
+
+try{var sv=localStorage.getItem('shamutanti_v5');if(sv)loadState(JSON.parse(sv));else renderMboxGrid();}catch(e){renderMboxGrid();}
+</script>

@@ -6,8 +6,11 @@ A mobile-first web app for tracking playthroughs of **Fighting Fantasy** gameboo
 
 ## Features
 
-- **Character creation** with automatic dice rolling or manual entry; class choice (Warrior or Wizard) is locked after confirmation
-- **Attributes** (Skill, Stamina and Luck) with separate initial and current value tracking
+- **Character creation flow** via guided modal:
+  - **Auto-generate**: choose Warrior or Wizard (dice formulas shown per class), confirm once — attributes are rolled and locked immediately
+  - **Manual entry**: dismiss modal and fill in values yourself; pick your class via a dedicated button in the Attributes card header
+  - Class is locked after confirmation and cannot be changed
+- **Attributes** (Skill, Stamina and Luck) with separate initial and current value tracking; card header shows chosen class name once confirmed
 - **Gold, Provisions, Equipment and Bonuses/Curses**
 - **Full combat system:**
   - Automatic mode: dice rolling, round resolution and Stamina sync
@@ -16,7 +19,7 @@ A mobile-first web app for tracking playthroughs of **Fighting Fantasy** gameboo
   - Expandable combat log per encounter (Monster Boxes)
 - **Notes** with free-text field and an ASCII/monospaced adventure map
 - **Auto-save** via `localStorage`
-- **Export/Import** character as JSON
+- **Export/Import** character as JSON (old saves with legacy format are migrated automatically)
 - **New Character** button with confirmation before wiping current data
 
 ---
@@ -26,7 +29,7 @@ A mobile-first web app for tracking playthroughs of **Fighting Fantasy** gameboo
 | Layer | Technology |
 |-------|-----------|
 | Markup | HTML5 |
-| Style | CSS3 (custom properties, grid, flexbox) |
+| Style | **Tailwind CSS** (CDN, custom parchment theme via `tailwind.config`) + thin `style.css` for things Tailwind can't express |
 | Logic | JavaScript ES6+ |
 | DOM & events | jQuery 3.7 |
 | Persistence | `localStorage` |
@@ -68,7 +71,7 @@ python -m http.server
 ## Roadmap
 
 ### Visual
-- [ ] Migrate styles to **Tailwind CSS**
+- [x] ~~Migrate styles to **Tailwind CSS**~~
 - [ ] Dark mode
 - [ ] Dice roll animations
 

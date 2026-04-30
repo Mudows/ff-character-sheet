@@ -137,10 +137,12 @@
       </div>
     </div>
     <div class="border-[1.5px] border-pb rounded-lg bg-pl mb-3 overflow-hidden">
-      <div class="bg-p text-pl text-[11px] font-bold px-2.5 py-1.5 tracking-widest uppercase">Mapa da Aventura</div>
+      <div class="bg-p text-pl text-[11px] font-bold px-2.5 py-1.5 tracking-widest uppercase flex justify-between items-center">
+        <span>Mapa da Aventura</span>
+        <button onclick="openMapModal()" class="bg-pl border border-pb rounded text-pd text-[10px] px-2 py-0.5 cursor-pointer font-serif font-bold">+ Registrar trecho</button>
+      </div>
       <div class="p-2.5">
-        <div class="text-[10px] text-p mb-1.5">Texto livre ou ASCII para registrar parágrafos e caminhos</div>
-        <textarea id="mapa" rows="10" class="field-ta font-mono" placeholder="1 -> 4 -> 17&#10;   [Portão Norte]&#10;17 -> 23 (combate: Goblin)&#10;23 -> 45 ou 89..." oninput="saveData()"></textarea>
+        <div id="map-log-list"></div>
       </div>
     </div>
   </div>
@@ -271,6 +273,24 @@
       </div>
       <button id="co-btn-confirm" onclick="confirmManualClass()" disabled class="btn primary">Confirmar</button>
       <button onclick="closeOverlay('modal-classonly')" class="btn">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: Registrar Trecho ===================== -->
+  <div id="modal-map" class="overlay" style="display:none">
+    <div class="modal-box" style="max-width:340px">
+      <p class="modal-title">Registrar Trecho</p>
+      <div class="text-left mb-1">
+        <label class="text-[10px] text-p font-bold uppercase block mb-1">Número do trecho</label>
+        <input type="number" id="map-section-input" placeholder="Ex: 128" class="field-input" oninput="onMapSectionInput()">
+      </div>
+      <div id="map-inherited" class="map-inherited-list"></div>
+      <div class="text-left mt-3">
+        <label class="text-[10px] text-p font-bold uppercase block mb-1">Anotação inicial (opcional)</label>
+        <textarea id="map-initial-note" rows="2" class="field-ta" placeholder="Ex: Pista sobre o caminho, item encontrado..."></textarea>
+      </div>
+      <button id="map-confirm-btn" onclick="confirmMapSection()" disabled class="btn primary mt-3">Registrar</button>
+      <button onclick="closeOverlay('modal-map')" class="btn">Cancelar</button>
     </div>
   </div>
 

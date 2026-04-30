@@ -4,96 +4,120 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ficha de Aventura — As Montanhas Shamutanti</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            p:   '#8b6914',
+            pl:  '#fdf6e3',
+            pb:  '#c8a96e',
+            pd:  '#5c3a00',
+            dbg: '#fff0f0',
+            dc:  '#A32D2D',
+            sbg: '#f0fff4',
+            sc:  '#3B6D11',
+          }
+        }
+      }
+    }
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-<div class="app">
+<body class="bg-[#f5f0e8] font-serif text-sm min-h-screen">
+<div class="max-w-[480px] mx-auto p-3">
 
-  <div class="hdr">
-    <small>★ AS MONTANHAS SHAMUTANTI ★</small>
-    <h1>Ficha de Aventura</h1>
-    <small id="hdr-sub">Guerreiro</small>
+  <!-- Header -->
+  <div class="text-center py-3 px-2 border-2 border-p rounded-lg bg-pl mb-3">
+    <small class="text-[11px] text-p block tracking-widest">★ FIGHTING FANTASY ★</small>
+    <h1 class="text-xl font-bold text-pd tracking-wide">As Montanhas Shamutanti</h1>
+    <div class="text-[13px] text-pd font-bold tracking-wide mt-0.5">Ficha de Aventura</div>
   </div>
 
-  <div class="nav">
-    <button class="nb active" onclick="showTab('personagem')">Personagem</button>
-    <button class="nb" onclick="showTab('anotacoes')">Anotações</button>
-    <button class="nb" onclick="showTab('combate')">Combate</button>
+  <!-- Nav -->
+  <div class="grid grid-cols-3 gap-1.5 mb-3">
+    <button class="nb py-2.5 px-1 border-[1.5px] border-p rounded-md bg-pl text-pd text-xs font-bold" onclick="showTab('personagem')" data-tab="personagem">Personagem</button>
+    <button class="nb py-2.5 px-1 border-[1.5px] border-p rounded-md bg-pl text-pd text-xs font-bold" onclick="showTab('anotacoes')" data-tab="anotacoes">Anotações</button>
+    <button class="nb py-2.5 px-1 border-[1.5px] border-p rounded-md bg-pl text-pd text-xs font-bold" onclick="showTab('combate')" data-tab="combate">Combate</button>
   </div>
 
   <!-- ===================== TAB: PERSONAGEM ===================== -->
-  <div id="tab-personagem" class="tab active">
+  <div id="tab-personagem" class="tab-content">
 
-    <div class="card" id="type-card">
-      <div class="ct">Tipo de personagem</div>
-      <div class="type-toggle">
-        <button class="tbtn active" id="btn-g" onclick="setType('guerreiro')">Guerreiro</button>
-        <button class="tbtn" id="btn-m" onclick="setType('mago')">Mago</button>
+    <!-- Atributos -->
+    <div class="border-[1.5px] border-pb rounded-lg bg-pl mb-3 overflow-hidden">
+      <div class="bg-p text-pl text-[11px] font-bold px-2.5 py-1.5 tracking-widest uppercase flex justify-between items-center">
+        <span id="attrs-header-label">Atributos</span>
+        <button id="btn-choose-class" onclick="openClassModal()" class="bg-pl border border-pb rounded text-pd text-[10px] px-2 py-0.5 cursor-pointer font-serif font-bold hidden">Escolher Classe</button>
       </div>
-      <div id="type-note" class="type-note">Será removido após confirmar os atributos.</div>
-    </div>
-
-    <div class="card">
-      <div class="ct">
-        Atributos
-        <span>
-          <button id="btn-roll" onclick="rollAll()">Rolar dados</button>
-          <button id="btn-confirm" onclick="confirmAttrs()" style="display:none">Confirmar</button>
-        </span>
-      </div>
-      <div class="cb">
-        <div class="stats3">
-          <div class="stat">
-            <div class="slbl">Habilidade</div>
-            <div class="spair">
-              <input type="number" id="hab-i" placeholder="ini" oninput="saveData()">
-              <span>/</span>
-              <input type="number" id="hab-a" placeholder="atu" oninput="saveData()">
+      <div class="p-2.5">
+        <div class="grid grid-cols-3 gap-1.5">
+          <div class="border border-pb rounded-md p-1.5 bg-[#fffdf5] text-center">
+            <div class="text-[10px] text-p font-bold uppercase mb-1">Habilidade</div>
+            <div class="flex gap-1 justify-center items-center">
+              <input type="number" id="hab-i" placeholder="ini" oninput="saveData()" class="stat-input">
+              <span class="text-[11px] text-pb">/</span>
+              <input type="number" id="hab-a" placeholder="atu" oninput="saveData()" class="stat-input">
             </div>
-            <div class="shint">ini / atual</div>
+            <div class="text-[8px] text-pb mt-1">ini / atual</div>
           </div>
-          <div class="stat">
-            <div class="slbl">Energia</div>
-            <div class="spair">
-              <input type="number" id="ene-i" placeholder="ini" oninput="saveData()">
-              <span>/</span>
-              <input type="number" id="ene-a" placeholder="atu" oninput="saveData()">
+          <div class="border border-pb rounded-md p-1.5 bg-[#fffdf5] text-center">
+            <div class="text-[10px] text-p font-bold uppercase mb-1">Energia</div>
+            <div class="flex gap-1 justify-center items-center">
+              <input type="number" id="ene-i" placeholder="ini" oninput="saveData()" class="stat-input">
+              <span class="text-[11px] text-pb">/</span>
+              <input type="number" id="ene-a" placeholder="atu" oninput="saveData()" class="stat-input">
             </div>
-            <div class="shint">ini / atual</div>
+            <div class="text-[8px] text-pb mt-1">ini / atual</div>
           </div>
-          <div class="stat">
-            <div class="slbl">Sorte</div>
-            <div class="spair">
-              <input type="number" id="sor-i" placeholder="ini" oninput="saveData()">
-              <span>/</span>
-              <input type="number" id="sor-a" placeholder="atu" oninput="saveData()">
+          <div class="border border-pb rounded-md p-1.5 bg-[#fffdf5] text-center">
+            <div class="text-[10px] text-p font-bold uppercase mb-1">Sorte</div>
+            <div class="flex gap-1 justify-center items-center">
+              <input type="number" id="sor-i" placeholder="ini" oninput="saveData()" class="stat-input">
+              <span class="text-[11px] text-pb">/</span>
+              <input type="number" id="sor-a" placeholder="atu" oninput="saveData()" class="stat-input">
             </div>
-            <div class="shint">ini / atual</div>
+            <div class="text-[8px] text-pb mt-1">ini / atual</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="ct">Ouro e Provisões</div>
-      <div class="cb">
-        <div class="two-col">
-          <div><label class="lbl">Ouro (peças)</label><input type="number" id="ouro" value="20" oninput="saveData()"></div>
-          <div><label class="lbl">Provisões</label><input type="number" id="provisoes" value="2" oninput="saveData()"></div>
+    <!-- Ouro e Provisões -->
+    <div class="border-[1.5px] border-pb rounded-lg bg-pl mb-3 overflow-hidden">
+      <div class="bg-p text-pl text-[11px] font-bold px-2.5 py-1.5 tracking-widest uppercase">Ouro e Provisões</div>
+      <div class="p-2.5">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] text-p font-bold uppercase block mb-1">Ouro (peças)</label>
+            <input type="number" id="ouro" value="20" oninput="saveData()" class="field-input">
+          </div>
+          <div>
+            <label class="text-[10px] text-p font-bold uppercase block mb-1">Provisões</label>
+            <input type="number" id="provisoes" value="2" oninput="saveData()" class="field-input">
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="ct">Equipamentos e Artefatos</div>
-      <div class="cb"><textarea id="equip" rows="4" placeholder="Espada, mochila, artefatos..." oninput="saveData()"></textarea></div>
+    <!-- Equipamentos -->
+    <div class="border-[1.5px] border-pb rounded-lg bg-pl mb-3 overflow-hidden">
+      <div class="bg-p text-pl text-[11px] font-bold px-2.5 py-1.5 tracking-widest uppercase">Equipamentos e Artefatos</div>
+      <div class="p-2.5">
+        <textarea id="equip" rows="4" placeholder="Espada, mochila, artefatos..." oninput="saveData()" class="field-ta"></textarea>
+      </div>
     </div>
 
-    <div class="card">
-      <div class="ct">Bônus, Penalidades e Maldições</div>
-      <div class="cb"><textarea id="bonus" rows="3" placeholder="Maldições, bônus, doenças..." oninput="saveData()"></textarea></div>
+    <!-- Bônus / Maldições -->
+    <div class="border-[1.5px] border-pb rounded-lg bg-pl mb-3 overflow-hidden">
+      <div class="bg-p text-pl text-[11px] font-bold px-2.5 py-1.5 tracking-widest uppercase">Bônus, Penalidades e Maldições</div>
+      <div class="p-2.5">
+        <textarea id="bonus" rows="3" placeholder="Maldições, bônus, doenças..." oninput="saveData()" class="field-ta"></textarea>
+      </div>
     </div>
 
+    <!-- Save row -->
     <div class="save-row">
       <button class="btn" onclick="exportJSON()">Exportar JSON</button>
       <label class="btn import-label">Importar JSON
@@ -105,28 +129,30 @@
   </div>
 
   <!-- ===================== TAB: ANOTAÇÕES ===================== -->
-  <div id="tab-anotacoes" class="tab">
-    <div class="card">
-      <div class="ct">Pistas e Notas</div>
-      <div class="cb"><textarea id="notas" rows="7" placeholder="Pistas, NPCs, decisões..." oninput="saveData()"></textarea></div>
+  <div id="tab-anotacoes" class="tab-content hidden">
+    <div class="border-[1.5px] border-pb rounded-lg bg-pl mb-3 overflow-hidden">
+      <div class="bg-p text-pl text-[11px] font-bold px-2.5 py-1.5 tracking-widest uppercase">Pistas e Notas</div>
+      <div class="p-2.5">
+        <textarea id="notas" rows="7" placeholder="Pistas, NPCs, decisões..." oninput="saveData()" class="field-ta"></textarea>
+      </div>
     </div>
-    <div class="card">
-      <div class="ct">Mapa da Aventura</div>
-      <div class="cb">
-        <div class="map-hint">Texto livre ou ASCII para registrar parágrafos e caminhos</div>
-        <textarea id="mapa" rows="10" class="map-ta" placeholder="1 -> 4 -> 17&#10;   [Portão Norte]&#10;17 -> 23 (combate: Goblin)&#10;23 -> 45 ou 89..." oninput="saveData()"></textarea>
+    <div class="border-[1.5px] border-pb rounded-lg bg-pl mb-3 overflow-hidden">
+      <div class="bg-p text-pl text-[11px] font-bold px-2.5 py-1.5 tracking-widest uppercase">Mapa da Aventura</div>
+      <div class="p-2.5">
+        <div class="text-[10px] text-p mb-1.5">Texto livre ou ASCII para registrar parágrafos e caminhos</div>
+        <textarea id="mapa" rows="10" class="field-ta font-mono" placeholder="1 -> 4 -> 17&#10;   [Portão Norte]&#10;17 -> 23 (combate: Goblin)&#10;23 -> 45 ou 89..." oninput="saveData()"></textarea>
       </div>
     </div>
   </div>
 
   <!-- ===================== TAB: COMBATE ===================== -->
-  <div id="tab-combate" class="tab">
+  <div id="tab-combate" class="tab-content hidden">
 
     <div id="view-idle">
-      <button class="btn primary" onclick="gotoSetup()">Iniciar novo combate</button>
-      <div class="card">
-        <div class="ct">Caixas de Encontros com Monstros</div>
-        <div class="cb">
+      <button class="btn primary w-full mb-3" onclick="gotoSetup()">Iniciar novo combate</button>
+      <div class="border-[1.5px] border-pb rounded-lg bg-pl mb-3 overflow-hidden">
+        <div class="bg-p text-pl text-[11px] font-bold px-2.5 py-1.5 tracking-widest uppercase">Caixas de Encontros com Monstros</div>
+        <div class="p-2.5">
           <div class="mbox-grid" id="mbox-grid">
             <div class="mbox-empty">Nenhum combate registrado ainda.</div>
           </div>
@@ -135,76 +161,126 @@
     </div>
 
     <div id="view-setup" style="display:none">
-      <div class="cpanel">
-        <h3>Novo Combate</h3>
-        <label class="lbl" style="margin-bottom:4px">Nome do monstro</label>
-        <input type="text" id="c-name" placeholder="Ex: Goblin das Montanhas" style="margin-bottom:8px">
-        <div class="two-col" style="margin-bottom:10px">
-          <div><label class="lbl">Habilidade</label><input type="number" id="c-hab" placeholder="7"></div>
-          <div><label class="lbl">Energia</label><input type="number" id="c-ene" placeholder="6"></div>
+      <div class="bg-pl border-2 border-p rounded-lg p-3 mb-3">
+        <h3 class="text-sm font-bold text-pd text-center border-b border-dashed border-pb pb-1.5 mb-2.5">Novo Combate</h3>
+        <label class="text-[10px] text-p font-bold uppercase block mb-1">Nome do monstro</label>
+        <input type="text" id="c-name" placeholder="Ex: Goblin das Montanhas" class="field-input mb-2">
+        <div class="grid grid-cols-2 gap-2 mb-2.5">
+          <div><label class="text-[10px] text-p font-bold uppercase block mb-1">Habilidade</label><input type="number" id="c-hab" placeholder="7" class="field-input"></div>
+          <div><label class="text-[10px] text-p font-bold uppercase block mb-1">Energia</label><input type="number" id="c-ene" placeholder="6" class="field-input"></div>
         </div>
-        <button class="btn primary" onclick="startCombat(true)">Combate automático</button>
-        <button class="btn" onclick="startCombat(false)">Combate manual</button>
-        <button class="btn danger" onclick="gotoIdle()">Cancelar</button>
+        <button class="btn primary w-full" onclick="startCombat(true)">Combate automático</button>
+        <button class="btn w-full" onclick="startCombat(false)">Combate manual</button>
+        <button class="btn danger w-full" onclick="gotoIdle()">Cancelar</button>
       </div>
     </div>
 
     <div id="view-active" style="display:none">
-      <div class="cpanel">
-        <h3 id="ct-title">Combate</h3>
-        <div class="combatants">
-          <div class="cmb" id="ct-hero">
-            <div class="cn">Herói</div>
-            <div class="cv" id="ct-hval">—</div>
-            <div class="cs">Energia</div>
+      <div class="bg-pl border-2 border-p rounded-lg p-3 mb-3">
+        <h3 id="ct-title" class="text-sm font-bold text-pd text-center border-b border-dashed border-pb pb-1.5 mb-2.5">Combate</h3>
+        <div class="grid grid-cols-2 gap-2 mb-2.5">
+          <div id="ct-hero" class="border border-pb rounded-md p-2 bg-white text-center">
+            <div class="text-[10px] font-bold text-p uppercase mb-1">Herói</div>
+            <div id="ct-hval" class="ct-val text-3xl font-bold text-pd leading-none">—</div>
+            <div class="text-[9px] text-pb mt-0.5">Energia</div>
           </div>
-          <div class="cmb" id="ct-mon">
-            <div class="cn" id="ct-mname">Monstro</div>
-            <div class="cv" id="ct-mval">—</div>
-            <div class="cs">Energia</div>
+          <div id="ct-mon" class="border border-pb rounded-md p-2 bg-white text-center">
+            <div id="ct-mname" class="text-[10px] font-bold text-p uppercase mb-1">Monstro</div>
+            <div id="ct-mval" class="ct-val text-3xl font-bold text-pd leading-none">—</div>
+            <div class="text-[9px] text-pb mt-0.5">Energia</div>
           </div>
         </div>
-        <div class="logbox" id="ct-log"></div>
+        <div id="ct-log" class="logbox"></div>
 
         <div id="auto-ctrl">
           <div class="rrow">
             <button class="btn primary" onclick="doRound()">Rolar rodada</button>
           </div>
           <div id="luck-zone" style="display:none">
-            <div class="luck-info" id="luck-desc"></div>
+            <div id="luck-desc" class="luck-info"></div>
             <div class="rrow">
               <button class="btn success" onclick="applyLuck(true)">Testar Sorte</button>
               <button class="btn" onclick="applyLuck(false)">Pular Sorte</button>
             </div>
           </div>
-          <button class="btn danger" onclick="endCombat('fuga')">Fugir / Encerrar</button>
+          <button class="btn danger w-full" onclick="endCombat('fuga')">Fugir / Encerrar</button>
         </div>
 
         <div id="manual-ctrl" style="display:none">
-          <div class="manual-hint">Dano nesta rodada:</div>
-          <div class="two-col" style="margin-bottom:8px">
-            <div><label class="lbl">Dano no herói</label><input type="number" id="m-hdmg" value="0"></div>
-            <div><label class="lbl">Dano no monstro</label><input type="number" id="m-mdmg" value="0"></div>
+          <div class="text-[11px] text-p mb-1.5">Dano nesta rodada:</div>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <div><label class="text-[10px] text-p font-bold uppercase block mb-1">Dano no herói</label><input type="number" id="m-hdmg" value="0" class="field-input"></div>
+            <div><label class="text-[10px] text-p font-bold uppercase block mb-1">Dano no monstro</label><input type="number" id="m-mdmg" value="0" class="field-input"></div>
           </div>
-          <button class="btn primary" onclick="doManualRound()">Aplicar rodada</button>
-          <button class="btn danger" onclick="endCombat('fuga')">Encerrar combate</button>
+          <button class="btn primary w-full" onclick="doManualRound()">Aplicar rodada</button>
+          <button class="btn danger w-full" onclick="endCombat('fuga')">Encerrar combate</button>
         </div>
 
         <div id="end-ctrl" style="display:none">
-          <button class="btn success" onclick="finalizeCombat()">Registrar e encerrar</button>
+          <button class="btn success w-full" onclick="finalizeCombat()">Registrar e encerrar</button>
         </div>
       </div>
     </div>
 
   </div>
 
-  <!-- ===================== MODAL: CONFIRMAÇÃO ===================== -->
-  <div id="confirm-overlay" class="overlay" style="display:none">
-    <div class="confirm-box">
-      <p class="confirm-title">Novo Personagem</p>
-      <p class="confirm-msg">Tem certeza? O personagem atual será apagado permanentemente.</p>
+  <!-- ===================== MODAL: Início — Manual ou Automático ===================== -->
+  <div id="modal-start" class="overlay" style="display:none">
+    <div class="modal-box">
+      <p class="modal-title">Novo Personagem</p>
+      <p class="modal-msg">Como deseja criar seu personagem?</p>
+      <button class="btn primary" onclick="chooseAuto()">Gerar automaticamente</button>
+      <button class="btn" onclick="chooseManual()">Registrar manualmente</button>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: Escolha de Classe (geração automática) ===================== -->
+  <div id="modal-autoclass" class="overlay" style="display:none">
+    <div class="modal-box">
+      <p class="modal-title">Escolha sua Classe</p>
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <button id="ac-btn-g" onclick="selectAutoClass('guerreiro')" class="class-btn">
+          <div class="font-bold text-sm mb-1">Guerreiro</div>
+          <div class="text-[10px] text-p leading-relaxed font-normal">HAB: 6+1d6<br>ENE: 2d6+12<br>SOR: 6+1d6</div>
+        </button>
+        <button id="ac-btn-m" onclick="selectAutoClass('mago')" class="class-btn">
+          <div class="font-bold text-sm mb-1">Mago</div>
+          <div class="text-[10px] text-p leading-relaxed font-normal">HAB: 4+1d6<br>ENE: 2d6+12<br>SOR: 6+1d6</div>
+        </button>
+      </div>
+      <div class="text-[10px] text-p bg-[#fffde0] border border-dashed border-pb rounded p-2 mb-3 leading-relaxed text-left">
+        ⚠ Ao confirmar, os atributos serão rolados automaticamente sem chance de rolar novamente.
+      </div>
+      <button id="ac-btn-confirm" onclick="confirmAutoClass()" disabled class="btn primary">Confirmar</button>
+      <button onclick="cancelAutoClass()" class="btn">Voltar</button>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: Escolha de Classe (manual) ===================== -->
+  <div id="modal-classonly" class="overlay" style="display:none">
+    <div class="modal-box">
+      <p class="modal-title">Escolha sua Classe</p>
+      <p class="modal-msg">Esta escolha é permanente e não poderá ser alterada depois de confirmada.</p>
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <button id="co-btn-g" onclick="selectManualClass('guerreiro')" class="class-btn">
+          <div class="font-bold text-sm">Guerreiro</div>
+        </button>
+        <button id="co-btn-m" onclick="selectManualClass('mago')" class="class-btn">
+          <div class="font-bold text-sm">Mago</div>
+        </button>
+      </div>
+      <button id="co-btn-confirm" onclick="confirmManualClass()" disabled class="btn primary">Confirmar</button>
+      <button onclick="closeOverlay('modal-classonly')" class="btn">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: Confirmação Novo Personagem ===================== -->
+  <div id="modal-newchar" class="overlay" style="display:none">
+    <div class="modal-box">
+      <p class="modal-title">Novo Personagem</p>
+      <p class="modal-msg">Tem certeza? O personagem atual será apagado permanentemente.</p>
       <button class="btn danger" onclick="confirmNewCharacter()">Sim, apagar e recomeçar</button>
-      <button class="btn" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn" onclick="closeOverlay('modal-newchar')">Cancelar</button>
     </div>
   </div>
 

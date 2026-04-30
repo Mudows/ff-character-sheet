@@ -1,13 +1,12 @@
 /* ============================================================
-   SHAMUTANTI — FICHA DE AVENTURA
-   app.js — jQuery version
+   SHAMUTANTI — FICHA DE AVENTURA  |  app.js
    ============================================================ */
 
 const STORAGE_KEY = 'shamutanti_v5';
 
 const DEFAULT_STATE = () => ({
   type: 'guerreiro',
-  locked: false,
+  classLocked: false,
   habI: '', habA: '',
   eneI: '', eneA: '',
   sorI: '', sorA: '',
@@ -22,77 +21,117 @@ const DEFAULT_STATE = () => ({
 
 let S = DEFAULT_STATE();
 let C = {};
+let pendingAutoClass  = null;
+let pendingManualClass = null;
 
-/* ── Dice ── */
 const d6    = () => Math.floor(Math.random() * 6) + 1;
 const roll2 = () => d6() + d6();
 
 /* ── Tabs ── */
 function showTab(t) {
-  $('.tab').removeClass('active');
-  $('.nb').removeClass('active');
-  $(`#tab-${t}`).addClass('active');
-  $('.nb').eq({ personagem: 0, anotacoes: 1, combate: 2 }[t]).addClass('active');
+  $('.tab-content').addClass('hidden');
+  $(`#tab-${t}`).removeClass('hidden');
+  $('.nb').removeClass('tab-active');
+  $(`.nb[data-tab="${t}"]`).addClass('tab-active');
 }
 
-/* ── Character type ── */
-function setType(t) {
-  if (S.locked) return;
-  S.type = t;
-  $('#btn-g').toggleClass('active', t === 'guerreiro');
-  $('#btn-m').toggleClass('active', t === 'mago');
-  $('#hdr-sub').text(t === 'guerreiro' ? 'Guerreiro' : 'Mago');
-  saveData();
-}
+/* ── Overlay helpers ── */
+function openOverlay(id)  { $(`#${id}`).show(); }
+function closeOverlay(id) { $(`#${id}`).hide(); }
 
-function lockAndHideType() {
-  S.locked = true;
-  $('#type-card').hide();
-  saveData();
-}
-
-/* ── Roll & confirm ── */
-function rollAll() {
-  const isMago = S.type === 'mago';
-  const h = d6() + (isMago ? 4 : 6);
-  const e = d6() + d6() + 12;
-  const s = d6() + 6;
-
-  $('#hab-i, #hab-a').val(h);
-  $('#ene-i, #ene-a').val(e);
-  $('#sor-i, #sor-a').val(s);
-
-  S.habI = S.habA = h;
-  S.eneI = S.eneA = e;
-  S.sorI = S.sorA = s;
-
-  $('#btn-roll').hide();
-  $('#btn-confirm').show();
-  saveData();
-}
-
-function confirmAttrs() {
-  lockAndHideType();
-  $('#btn-confirm').hide();
-  saveData();
-}
-
-/* ── New character ── */
+/* ── "Novo personagem" button ── */
 function newCharacter() {
-  $('#confirm-overlay').show();
-}
-
-function closeConfirm() {
-  $('#confirm-overlay').hide();
+  openOverlay('modal-newchar');
 }
 
 function confirmNewCharacter() {
-  closeConfirm();
+  closeOverlay('modal-newchar');
   S = DEFAULT_STATE();
   try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
   applyStateToUI();
   showTab('personagem');
   gotoIdle();
+  openOverlay('modal-start');
+}
+
+/* ── Start modal: manual vs auto ── */
+function chooseManual() {
+  closeOverlay('modal-start');
+  // Sheet is now open, user fills manually; class selector button visible
+}
+
+function chooseAuto() {
+  closeOverlay('modal-start');
+  pendingAutoClass = null;
+  $('#ac-btn-g, #ac-btn-m').removeClass('selected');
+  $('#ac-btn-confirm').prop('disabled', true).text('Confirmar');
+  openOverlay('modal-autoclass');
+}
+
+/* ── Auto class modal ── */
+function selectAutoClass(t) {
+  pendingAutoClass = t;
+  $('#ac-btn-g').toggleClass('selected', t === 'guerreiro');
+  $('#ac-btn-m').toggleClass('selected', t === 'mago');
+  const label = t === 'guerreiro' ? 'Guerreiro' : 'Mago';
+  $('#ac-btn-confirm').prop('disabled', false).text(`Confirmar como ${label}`);
+}
+
+function confirmAutoClass() {
+  if (!pendingAutoClass) return;
+  S.type = pendingAutoClass;
+  const isMago = S.type === 'mago';
+  const h = d6() + (isMago ? 4 : 6);
+  const e = d6() + d6() + 12;
+  const s = d6() + 6;
+  S.habI = S.habA = h;
+  S.eneI = S.eneA = e;
+  S.sorI = S.sorA = s;
+  S.classLocked = true;
+  closeOverlay('modal-autoclass');
+  applyStateToUI();
+  saveData();
+}
+
+function cancelAutoClass() {
+  closeOverlay('modal-autoclass');
+  openOverlay('modal-start');
+}
+
+/* ── Manual class modal ── */
+function openClassModal() {
+  pendingManualClass = null;
+  $('#co-btn-g, #co-btn-m').removeClass('selected');
+  $('#co-btn-confirm').prop('disabled', true);
+  openOverlay('modal-classonly');
+}
+
+function selectManualClass(t) {
+  pendingManualClass = t;
+  $('#co-btn-g').toggleClass('selected', t === 'guerreiro');
+  $('#co-btn-m').toggleClass('selected', t === 'mago');
+  $('#co-btn-confirm').prop('disabled', false);
+}
+
+function confirmManualClass() {
+  if (!pendingManualClass) return;
+  S.type = pendingManualClass;
+  S.classLocked = true;
+  closeOverlay('modal-classonly');
+  applyStateToUI();
+  saveData();
+}
+
+/* ── Attrs card header ── */
+function updateAttrsHeader() {
+  const label = S.type === 'guerreiro' ? 'Guerreiro' : 'Mago';
+  if (S.classLocked) {
+    $('#attrs-header-label').text(`Atributos — ${label}`);
+    $('#btn-choose-class').addClass('hidden');
+  } else {
+    $('#attrs-header-label').text('Atributos');
+    $('#btn-choose-class').removeClass('hidden');
+  }
 }
 
 /* ── Field helpers ── */
@@ -127,21 +166,7 @@ function applyStateToUI() {
   $('#bonus').val(S.bonus || '');
   $('#notas').val(S.notas || '');
   $('#mapa').val(S.mapa   || '');
-
-  $('#btn-g').toggleClass('active', S.type === 'guerreiro');
-  $('#btn-m').toggleClass('active', S.type === 'mago');
-  $('#hdr-sub').text(S.type === 'guerreiro' ? 'Guerreiro' : 'Mago');
-
-  if (S.locked) {
-    $('#type-card').hide();
-    $('#btn-roll, #btn-confirm').hide();
-  } else {
-    $('#type-card').show();
-    $('#btn-roll').show();
-    $('#btn-confirm').hide();
-    $('#btn-g, #btn-m').prop('disabled', false);
-  }
-
+  updateAttrsHeader();
   renderMboxGrid();
 }
 
@@ -162,6 +187,11 @@ function importJSON(e) {
     try {
       const parsed = JSON.parse(ev.target.result);
       if (!parsed.type) return alert('JSON inválido.');
+      // Migrate old saves: 'locked' → 'classLocked'
+      if (parsed.locked !== undefined && parsed.classLocked === undefined) {
+        parsed.classLocked = parsed.locked;
+        delete parsed.locked;
+      }
       S = parsed;
       applyStateToUI();
       saveData();
@@ -191,12 +221,8 @@ function startCombat(auto) {
   const ene     = parseInt(gf('c-ene')) || 6;
   const heroEne = parseInt(gf('ene-a')) || 20;
 
-  C = {
-    name, hab, eneI: ene, eneCur: ene,
-    heroEneCur: heroEne,
-    round: 0, log: [],
-    auto, finished: false, pendingLuck: null
-  };
+  C = { name, hab, eneI: ene, eneCur: ene, heroEneCur: heroEne,
+        round: 0, log: [], auto, finished: false, pendingLuck: null };
 
   $('#ct-title').text(`Herói vs ${name}`);
   $('#ct-mname').text(name);
@@ -241,17 +267,14 @@ function doRound() {
     addLog('hero', 'Herói vence a rodada! Dano base: 2. Testar Sorte para causar 4?');
     $('#luck-desc').text(`Herói venceu: Testar Sorte para causar 4 de dano (em vez de 2). Sorte atual: ${gf('sor-a') || '?'}`);
     $('#luck-zone').show();
-
   } else if (ma > ha) {
     C.pendingLuck = { winner: 'monster' };
     addLog('mon', `${C.name} vence a rodada! Dano base: 2. Testar Sorte para reduzir para 1?`);
     $('#luck-desc').text(`${C.name} venceu: Testar Sorte para receber apenas 1 de dano (em vez de 2). Sorte atual: ${gf('sor-a') || '?'}`);
     $('#luck-zone').show();
-
   } else {
     addLog('sys', 'Empate! Nenhum dano nesta rodada.');
   }
-
   updateDisplay();
 }
 
@@ -263,9 +286,9 @@ function applyLuck(test) {
   $('#luck-zone').hide();
 
   if (test) {
-    const sorA   = parseInt(gf('sor-a')) || 8;
-    const r      = roll2();
-    const lucky  = r <= sorA;
+    const sorA  = parseInt(gf('sor-a')) || 8;
+    const r     = roll2();
+    const lucky = r <= sorA;
     const newSor = Math.max(1, sorA - 1);
     sf('sor-a', newSor);
     S.sorA = newSor;
@@ -279,9 +302,7 @@ function applyLuck(test) {
     } else {
       const dmg = lucky ? 1 : 2;
       C.heroEneCur = Math.max(0, C.heroEneCur - dmg);
-      sf('ene-a', C.heroEneCur);
-      S.eneA = C.heroEneCur;
-      saveData();
+      sf('ene-a', C.heroEneCur); S.eneA = C.heroEneCur; saveData();
       addLog(lucky ? 'hero' : 'mon',
         `Sorte (${r}/${sorA}): ${lucky ? 'SORTUDO! Apenas 1 de dano recebido.' : 'AZARADO! 2 de dano recebido.'} Herói ENE: ${C.heroEneCur}`);
     }
@@ -291,13 +312,10 @@ function applyLuck(test) {
       addLog('hero', `Dano aplicado: 2. ${C.name} ENE: ${C.eneCur}`);
     } else {
       C.heroEneCur = Math.max(0, C.heroEneCur - 2);
-      sf('ene-a', C.heroEneCur);
-      S.eneA = C.heroEneCur;
-      saveData();
+      sf('ene-a', C.heroEneCur); S.eneA = C.heroEneCur; saveData();
       addLog('mon', `Dano recebido: 2. Herói ENE: ${C.heroEneCur}`);
     }
   }
-
   updateDisplay();
   checkEnd();
 }
@@ -310,9 +328,7 @@ function doManualRound() {
   const md = parseInt(gf('m-mdmg')) || 0;
   C.heroEneCur = Math.max(0, C.heroEneCur - hd);
   C.eneCur     = Math.max(0, C.eneCur     - md);
-  sf('ene-a', C.heroEneCur);
-  S.eneA = C.heroEneCur;
-  saveData();
+  sf('ene-a', C.heroEneCur); S.eneA = C.heroEneCur; saveData();
   addLog('sys', `Rodada ${C.round}: Herói -${hd} | ${C.name} -${md} ENE`);
   $('#m-hdmg, #m-mdmg').val(0);
   updateDisplay();
@@ -327,8 +343,7 @@ function checkEnd() {
 
 function endCombat(result) {
   if (C.finished) return;
-  C.finished = true;
-  C.result   = result;
+  C.finished = true; C.result = result;
   const msgs  = { vitoria: `Vitória! ${C.name} derrotado!`, derrota: 'Derrota. O herói caiu.', fuga: 'Combate encerrado.' };
   const types = { vitoria: 'hero', derrota: 'mon', fuga: 'sys' };
   addLog(types[result] || 'sys', msgs[result]);
@@ -338,10 +353,8 @@ function endCombat(result) {
 
 function finalizeCombat() {
   const entry = {
-    id: Date.now(),
-    name: C.name, hab: C.hab, eneI: C.eneI,
-    rounds: C.round, result: C.result,
-    log: C.log.slice(),
+    id: Date.now(), name: C.name, hab: C.hab, eneI: C.eneI,
+    rounds: C.round, result: C.result, log: C.log.slice(),
     date: new Date().toLocaleString('pt-BR')
   };
   if (!S.history) S.history = [];
@@ -354,36 +367,22 @@ function finalizeCombat() {
 /* ── Monster boxes ── */
 function renderMboxGrid() {
   const $grid = $('#mbox-grid').empty();
-
   if (!S.history || !S.history.length) {
     $grid.append($('<div>').addClass('mbox-empty').text('Nenhum combate registrado ainda.'));
     return;
   }
-
   const labels  = { vitoria: 'Vitória', derrota: 'Derrota', fuga: 'Encerrado' };
   const classes = { vitoria: 'win',     derrota: 'loss',    fuga: 'fuga'      };
 
   S.history.forEach((h, i) => {
-    const logId = `mbl-${i}`;
-
-    const $logEntries = h.log.map(l =>
-      $('<div>').addClass(`le ${l.type}`).text(l.msg)
-    );
-
-    const $log = $('<div>').addClass('mbox-log').attr('id', logId).append($logEntries);
-
-    const $status = $('<span>')
-      .addClass(`mbox-status ${classes[h.result] || ''}`)
-      .text(labels[h.result] || h.result);
-
+    const $log = $('<div>').addClass('mbox-log').attr('id', `mbl-${i}`)
+      .append(h.log.map(l => $('<div>').addClass(`le ${l.type}`).text(l.msg)));
+    const $status = $('<span>').addClass(`mbox-status ${classes[h.result] || ''}`).text(labels[h.result] || h.result);
     const $header = $('<div>').addClass('mbox-hdr')
       .append($('<div>').addClass('mbox-name').text(h.name))
-      .append($('<div>').addClass('mbox-meta').text(
-        `HAB ${h.hab} | ENE inicial ${h.eneI} | ${h.rounds} rodadas | ${h.date}`
-      ))
+      .append($('<div>').addClass('mbox-meta').text(`HAB ${h.hab} | ENE inicial ${h.eneI} | ${h.rounds} rodadas | ${h.date}`))
       .append($status)
       .on('click', () => $log.toggleClass('open'));
-
     $('<div>').addClass('mbox').append($header, $log).appendTo($grid);
   });
 }
@@ -394,11 +393,18 @@ $(function () {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       S = JSON.parse(saved);
+      if (S.locked !== undefined && S.classLocked === undefined) {
+        S.classLocked = S.locked;
+        delete S.locked;
+      }
       applyStateToUI();
     } else {
       renderMboxGrid();
+      openOverlay('modal-start');
     }
   } catch (e) {
     renderMboxGrid();
+    openOverlay('modal-start');
   }
+  showTab('personagem');
 });

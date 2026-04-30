@@ -17,7 +17,12 @@ A mobile-first web app for tracking playthroughs of **Fighting Fantasy** gameboo
   - Manual mode: damage entry per round
   - Luck tests in combat (modifies damage dealt or received, per the rulebook)
   - Expandable combat log per encounter (Monster Boxes)
-- **Notes** with free-text field and an ASCII/monospaced adventure map
+- **Notes** with free-text field
+- **Adventure Map** — section-by-section log with inherited knowledge across characters:
+  - Register any section number via modal; the modal shows notes left by previous characters for that same section before you commit
+  - Each registered section is expandable in the current character's map to add or edit a note
+  - On "New Character", the current map is automatically migrated to a global per-book log, so the next character inherits all accumulated knowledge
+  - Map history is stored separately from the character state (`ff_maplog` in `localStorage`, keyed by book ID) — ready for multiple books
 - **Auto-save** via `localStorage`
 - **Export/Import** character as JSON (old saves with legacy format are migrated automatically)
 - **New Character** button with confirmation before wiping current data
@@ -87,6 +92,13 @@ python -m http.server
 - [ ] Spellbook support for systems that allow recording spells
 - [ ] Full offline support (PWA / Service Worker)
 - [ ] Export character sheet as PDF
+
+### Settings & management screen
+A dedicated settings/management screen (accessible from the main nav or a gear icon) covering:
+- [ ] **Inherited map history management** — list all books that have accumulated section notes, with the option to clear a specific book's history for a clean-slate experience
+- [ ] **Data overview** — show how much `localStorage` space is in use
+- [ ] **Full reset** — wipe all app data (character + all map logs) with a confirmation gate
+- [ ] **Book selection** — switch the active book/system, laying the groundwork for multi-book support
 
 ---
 

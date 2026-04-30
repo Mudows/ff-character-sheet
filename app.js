@@ -3,6 +3,8 @@
    ============================================================ */
 
 const STORAGE_KEY = 'shamutanti_v5';
+const MAP_KEY     = 'ff_maplog';
+const BOOK_ID     = 'shamutanti';
 
 const DEFAULT_STATE = () => ({
   type: 'guerreiro',
@@ -15,7 +17,7 @@ const DEFAULT_STATE = () => ({
   equip: '',
   bonus: '',
   notas: '',
-  mapa: '',
+  maplog: [],
   history: []
 });
 
@@ -46,6 +48,7 @@ function newCharacter() {
 
 function confirmNewCharacter() {
   closeOverlay('modal-newchar');
+  migrateMapToGlobal();
   S = DEFAULT_STATE();
   try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
   applyStateToUI();
@@ -147,7 +150,6 @@ function readFields() {
   S.equip     = gf('equip');
   S.bonus     = gf('bonus');
   S.notas     = gf('notas');
-  S.mapa      = gf('mapa');
 }
 
 /* ── Persistence ── */
@@ -165,9 +167,9 @@ function applyStateToUI() {
   $('#equip').val(S.equip || '');
   $('#bonus').val(S.bonus || '');
   $('#notas').val(S.notas || '');
-  $('#mapa').val(S.mapa   || '');
   updateAttrsHeader();
   renderMboxGrid();
+  renderMapLog();
 }
 
 function exportJSON() {
@@ -200,6 +202,126 @@ function importJSON(e) {
     }
   };
   reader.readAsText(file);
+}
+
+/* ── Map log ── */
+
+// Global inherited log: all entries from previous characters, per book
+function getGlobalLog() {
+  try {
+    const all = JSON.parse(localStorage.getItem(MAP_KEY) || '{}');
+    return all[BOOK_ID] || [];
+  } catch { return []; }
+}
+
+function saveGlobalLog(entries) {
+  try {
+    const all = JSON.parse(localStorage.getItem(MAP_KEY) || '{}');
+    all[BOOK_ID] = entries;
+    localStorage.setItem(MAP_KEY, JSON.stringify(all));
+  } catch {}
+}
+
+// Migrate current character's maplog to the global inherited log on character retirement
+function migrateMapToGlobal() {
+  if (!S.maplog || !S.maplog.length) return;
+  const global = getGlobalLog();
+  saveGlobalLog([...S.maplog, ...global]);
+}
+
+function openMapModal() {
+  $('#map-section-input').val('');
+  $('#map-initial-note').val('');
+  $('#map-inherited').empty();
+  $('#map-confirm-btn').prop('disabled', true);
+  openOverlay('modal-map');
+  setTimeout(() => $('#map-section-input').focus(), 50);
+}
+
+function onMapSectionInput() {
+  const sec = parseInt($('#map-section-input').val());
+  $('#map-confirm-btn').prop('disabled', !sec || sec < 1);
+
+  const $list = $('#map-inherited').empty();
+  if (!sec || sec < 1) return;
+
+  // Show notes from previous characters only (global log)
+  const matches = getGlobalLog().filter(e => e.section === sec);
+  if (!matches.length) {
+    $list.append(
+      $('<div>').addClass('text-[10px] text-pb italic text-center py-2')
+        .text('Nenhuma anotação de sessões anteriores para este trecho.')
+    );
+    return;
+  }
+
+  const $wrap = $('<div>').addClass('map-inherited-list');
+  matches.forEach(e => {
+    const $entry = $('<div>').addClass('map-inherited-entry');
+    $entry.append($('<div>').addClass('map-inherited-date').text(e.date));
+    $entry.append(
+      e.note
+        ? $('<div>').addClass('map-inherited-note').text(e.note)
+        : $('<div>').addClass('map-inherited-empty').text('Sem anotação.')
+    );
+    $wrap.append($entry);
+  });
+  $list.append($wrap);
+}
+
+function confirmMapSection() {
+  const sec = parseInt($('#map-section-input').val());
+  if (!sec || sec < 1) return;
+  const note = $('#map-initial-note').val().trim();
+  const entry = { id: Date.now(), section: sec, note, date: new Date().toLocaleString('pt-BR') };
+  if (!S.maplog) S.maplog = [];
+  S.maplog.unshift(entry);
+  saveData();
+  closeOverlay('modal-map');
+  renderMapLog();
+}
+
+function updateMapNote(id, note) {
+  if (!S.maplog) return;
+  const entry = S.maplog.find(e => e.id === id);
+  if (entry) { entry.note = note; saveData(); }
+}
+
+function renderMapLog() {
+  const $list = $('#map-log-list').empty();
+  const entries = S.maplog || [];
+
+  if (!entries.length) {
+    $list.append($('<div>').addClass('mbox-empty').text('Nenhum trecho registrado ainda.'));
+    return;
+  }
+
+  entries.forEach(entry => {
+    const $textarea = $('<textarea>')
+      .addClass('field-ta text-xs')
+      .attr({ rows: 2, placeholder: 'Anotação sobre este trecho...' })
+      .val(entry.note)
+      .on('input', function () { updateMapNote(entry.id, $(this).val()); });
+
+    const $noteWrap = $('<div>').addClass('map-note-wrap').append($textarea);
+    if (entry.note) $noteWrap.addClass('open');
+
+    const $toggle = $('<span>').addClass('map-entry-toggle').text(entry.note ? '▾' : '+');
+
+    const $hdr = $('<div>').addClass('map-entry-hdr')
+      .append(
+        $('<div>').addClass('flex items-center gap-2')
+          .append($('<span>').addClass('map-section-num').text(`§ ${entry.section}`))
+          .append($('<span>').addClass('map-entry-date').text(entry.date))
+      )
+      .append($toggle)
+      .on('click', function () {
+        $noteWrap.toggleClass('open');
+        $toggle.text($noteWrap.hasClass('open') ? '▾' : '+');
+      });
+
+    $('<div>').addClass('map-entry').append($hdr, $noteWrap).appendTo($list);
+  });
 }
 
 /* ── Combat navigation ── */
@@ -400,10 +522,12 @@ $(function () {
       applyStateToUI();
     } else {
       renderMboxGrid();
+      renderMapLog();
       openOverlay('modal-start');
     }
   } catch (e) {
     renderMboxGrid();
+    renderMapLog();
     openOverlay('modal-start');
   }
   showTab('personagem');

@@ -1,4 +1,5 @@
-# Adventure Sheet — Fighting Fantasy / Sorcery!
+# Fantasy Character Sheet
+### A Fan-made Digital Character Sheet for the Fighting Fantasy Book Series
 
 A mobile-first web app for tracking playthroughs of **Fighting Fantasy** gamebooks, with initial support for the **Sorcery!** system (published in Brazil by Jambô Editora as *As Montanhas Shamutanti*, *Kharé*, etc.).
 
